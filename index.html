@@ -38,8 +38,8 @@ const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 let englishVoices=[];
 function loadVoices(){englishVoices=speechSynthesis.getVoices().filter(v=>/^en[-_]/i.test(v.lang))}
 loadVoices();speechSynthesis.addEventListener('voiceschanged',loadVoices);
-function bestBritishVoice(){return [...englishVoices].sort((a,b)=>voiceScore(b)-voiceScore(a))[0]}
-function voiceScore(v){let s=0,n=v.name.toLowerCase(),l=v.lang.toLowerCase();if(l.startsWith('en-gb'))s+=100;if(/natural|neural|premium|enhanced/.test(n))s+=40;if(/ryan|daniel|arthur|oliver|george|sonia|libby|serena/.test(n))s+=30;if(/google uk/.test(n))s+=25;if(!v.localService)s+=5;return s}
+function bestBritishVoice(){const mobile=/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)||matchMedia('(max-width:700px)').matches;return [...englishVoices].sort((a,b)=>voiceScore(b,mobile)-voiceScore(a,mobile))[0]}
+function voiceScore(v,mobile=false){let s=0,n=v.name.toLowerCase(),l=v.lang.toLowerCase();if(l.startsWith('en-gb'))s+=100;if(/natural|neural|premium|enhanced/.test(n))s+=40;if(/ryan|daniel|arthur|oliver|george/.test(n))s+=mobile?80:30;if(/male|man/.test(n))s+=mobile?70:0;if(/sonia|libby|serena/.test(n))s+=mobile?-20:30;if(/google uk/.test(n))s+=25;if(!v.localService)s+=5;return s}
 function speak(word,cb){speechSynthesis.cancel();const endsInAt=/at$/i.test(word);const spoken=endsInAt?word+'.':word;const u=new SpeechSynthesisUtterance(spoken);const voice=bestBritishVoice();if(voice)u.voice=voice;u.lang="en-GB";u.rate=endsInAt?.52:.62;u.pitch=1;u.volume=1;if(cb)u.onend=cb;setTimeout(()=>speechSynthesis.speak(u),120)}
 function addStar(n=1){stars+=n;$("#stars").textContent=stars;for(let i=0;i<5;i++){const e=document.createElement("span");e.className="burst";e.textContent="⭐";e.style.left=(45+Math.random()*15)+"vw";e.style.top="55vh";e.style.setProperty("--x",(Math.random()*140-70)+"px");document.body.append(e);setTimeout(()=>e.remove(),850)}}
 function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
